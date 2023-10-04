@@ -5,7 +5,7 @@ const Answer = async (req, res) => {
         const ans = new answer({
             content: req.body.content,
             user: req.body.user,
-            question: req.body.questionId
+            question: req.body.question
         });
 
         await ans.save();
