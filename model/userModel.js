@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import validator from "email-validator";
+import bcrypt from 'bcrypt';
+
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -22,6 +24,6 @@ const userSchema = new mongoose.Schema({
     },
 });
 
-const user = mongoose.model("user", userSchema);
+const User = mongoose.model("user", userSchema);
 
-export default user;
+export default User;
