@@ -4,7 +4,9 @@ import User from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-
+import dotenv from "dotenv";
+dotenv.config();
+const mail = process.env.email;
 // POST
 const register =  async (req, res)=>{
     try {
@@ -57,7 +59,7 @@ const register =  async (req, res)=>{
     });
 
     const mailOptions = {
-        from: "thepinkypamecha@gmail.com",
+        from: mail,
         to: email,
         subject: "Registration Confirmation",
         text: "Thank you for registering with our platform!",
