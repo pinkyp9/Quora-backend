@@ -30,3 +30,11 @@ app.use("/user", userRoutes);
 app.use("/answer", answerRoutes);
 app.use("/question", questionRoutes);
 
+app.get("/",(req,res)=>{
+    res.send("Welcome to your Q&A platform!");
+});
+
+app.use((err,req,res,net) => {
+    console.error(err.stack);
+    res.status(500).send("something went wrong!");
+})

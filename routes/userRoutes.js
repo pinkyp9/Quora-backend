@@ -1,14 +1,16 @@
 import express from "express";
 const router = express.Router();
-import {signUp,login,getProfile,updatemail}  from "../controllers/userControllers.js";
+import {register,login,getProfile,updateUserProfile,deleteUser}  from "../controllers/userControllers.js";
 import authenticateUser from "../middleware/authMiddleware.js";
 
-router.post("/signup", signUp);
+router.post("/register", register);
 
 router.post("/login",login);
 
 router.get('/profile', authenticateUser,getProfile);
 
-router.put('/update/email', authenticateUser,updatemail);
+router.put('/update', authenticateUser,updateUserProfile);
+
+router.delete("/delete", authenticateUser, deleteUser);
 
 export default router;
