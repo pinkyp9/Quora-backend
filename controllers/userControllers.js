@@ -8,6 +8,13 @@ import dotenv from "dotenv";
 dotenv.config();
 const mail = process.env.email;
 // POST
+const generateOTP = () => {
+    return Math.floor(1000 + Math.random() * 9000); // Generates a 4-digit OTP
+  };
+
+  const tempRegistrations = new Map();
+
+
 const register =  async (req, res)=>{
     try {
         const { username, password, email } = req.body;
@@ -18,65 +25,116 @@ const register =  async (req, res)=>{
             return res.status(400).json({ message: "User already exists." });}
 
         else{
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        const newUser = new User({ username, password: hashedPassword, email });
-        await newUser.save();
-
-        // const transporter = nodemailer.createTransport({
-        //     service: "Gmail", // e.g., Gmail
-        //     auth: {
-        //       user: "thepinkypamecha@gmail.com",
-        //       pass: "pinkynathu",
-        //     },
-        //   });
-
-        //   const mailOptions = {
-        //     from: "your-email@gmail.com",
-        //     to: email,
-        //     subject: "Registration Confirmation",
-        //     text: "Thank you for registering with our platform!",
-        //   };
-      
-        //   transporter.sendMail(mailOptions, (error, info) => {
-        //     if (error) {
-        //       console.error("Email sending failed:", error);
-        //     } else {
-        //       console.log("Email sent:", info.response);
-        //     }
-        //   });
+        
+        const otp = generateOTP();
+        
+        tempRegistrations.set(email, { username, email, password, otp });
+               
         const testAccount = await nodemailer.createTestAccount();
 
     // Create a transporter using the Ethereal SMTP credentials
-    const transporter = nodemailer.createTransport({
-      host: testAccount.smtp.host,
-      port: testAccount.smtp.port,
-      secure: testAccount.smtp.secure,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
-    });
+        const transporter = nodemailer.createTransport({
+        host: testAccount.smtp.host,
+        port: testAccount.smtp.port,
+        secure: testAccount.smtp.secure,
+        auth: {
+            user: testAccount.user,
+            pass: testAccount.pass,
+        },
+        });
 
-    const mailOptions = {
+    const mailOption = {
         from: mail,
         to: email,
-        subject: "Registration Confirmation",
-        text: "Thank you for registering with our platform!",
+        subject: "Registration OTP",
+        text: `Your OTP for registration is: ${otp}`,
       };
-  
-      const info = await transporter.sendMail(mailOptions);
-  
-      console.log("Message sent: %s", info.messageId);
-      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 
-
-        res.status(201).json({ message: "User registered successfully." });}
-
+   
+      transporter.sendMail(mailOption, (error, info) => {
+        if (error) {
+          console.error("Email sending failed:", error);
+        } else {
+          console.log("Email sent:", info.response);
+          console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
         }
+
+
+      });
+
+
+      res.status(200).json({ message: "OTP sent for verification" });
+        }}
      catch (error) {
         res.status(500).json({ message: error.message });}
 }
+
+
+// Controller for OTP verification
+ const verifyOTP = async (req, res) => {
+  try {
+    const { email, userOTP } = req.body;
+
+    // Check if there's a registration in progress for this email
+    const registrationData = tempRegistrations.get(email);
+
+    if (!registrationData) {
+      return res.status(400).json({ error: "Registration data not found" });
+    }
+
+//har time run karne par new otp
+//ek time par sirf ek otp
+
+
+    if (registrationData.otp === userOTP) {
+      // If OTP matches, register the user and store their data in the database
+      const { username, email, password } = registrationData;
+
+      // Hash the password before saving it
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      
+
+      // Create a new user with the hashed password
+      const newUser = new User({ username, email, password: hashedPassword, isVerified: true });
+      await newUser.save();
+      const testAccount = await nodemailer.createTestAccount();
+
+      // Create a transporter using the Ethereal SMTP credentials
+      const transporter = nodemailer.createTransport({
+        host: testAccount.smtp.host,
+        port: testAccount.smtp.port,
+        secure: testAccount.smtp.secure,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass,
+        },
+      });
+
+      // Remove the temporary registration data
+      tempRegistrations.delete(email);
+      const mailOptions = {
+        from: mail,
+        to: email,
+        subject: "Registration Confirmation",
+         text: "Thank you for registering with our platform!",
+       };
+       const info = await transporter.sendMail(mailOptions);
+   
+       console.log("Message sent: %s", info.messageId);
+       console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+ 
+      res.status(200).json({ message: "Email verified, account activated" });
+    } else {
+      res.status(401).json({ error: "OTP verification failed" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "OTP verification failed" });
+  }
+};
+
+
 
 const login = async (req,res)=>{
     try {
@@ -118,31 +176,7 @@ const getProfile = async(req,res)=>{
     }
 }
 
-// const updatemail = async(req,res)=>{
-//     try {
-//         const { newEmail } = req.body;
-//         const userId = req._id;
-//         console.log(userId);
-    
-       
-//             const user = await User.findById(userId);
-    
-//             if (!user) {
-//                 return res.status(404).json({ message: 'User not found' });
-//             }
-    
 
-//             user.email = newEmail;
-//             await user.save();
-    
-//             res.status(200).json({ message: 'Email updated successfully' });
-//     }
-//     catch(error){
-//         console.log(error);
-//         res.status(500).json({message:"error"})
-//     }
-// }
- 
 
 const updateUserProfile = async (req, res) => {
   try {
@@ -189,4 +223,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-export { register, login ,getProfile,updateUserProfile,deleteUser};
+export { register, login ,getProfile,updateUserProfile,deleteUser,verifyOTP};
