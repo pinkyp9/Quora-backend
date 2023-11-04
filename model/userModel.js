@@ -2,6 +2,22 @@ import mongoose from "mongoose";
 import validator from "email-validator";
 import bcrypt from 'bcrypt';
 
+const tempSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+        validator: validator.validate, // Use email-validator's validate function
+        message: "Invalid email address",
+    },
+},
+otp :{
+  type : Number,
+  required: true
+},
+});
+
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -22,8 +38,20 @@ const userSchema = new mongoose.Schema({
             message: "Invalid email address",
         },
     },
+    followers: [
+        {
+          type: String,
+          ref: "User",
+        },
+      ],
+      following: [
+        {
+          type: String,
+          ref: "User",
+        },
+      ],
 });
 
 const User = mongoose.model("user", userSchema);
-
-export default User;
+const UserT = mongoose.model("usert",tempSchema);
+export {User,UserT};

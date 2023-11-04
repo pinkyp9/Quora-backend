@@ -1,25 +1,24 @@
 //apne mail se daalne wala baaki hai
 import express from "express";
-import User from "../model/userModel.js";
+import {User,UserT} from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
+
+
 const mail = process.env.email;
-// POST
+
 const generateOTP = () => {
     return Math.floor(1000 + Math.random() * 9000); // Generates a 4-digit OTP
   };
 
-  const tempRegistrations = new Map();
-
-
-const register =  async (req, res)=>{
+const sendOTP =  async (req, res)=>{
     try {
-        const { username, password, email } = req.body;
+        const { email } = req.body;
 
-        const existingUser = await User.findOne({ username });
+        const existingUser = await User.findOne({ email });
 
         if (existingUser) {
             return res.status(400).json({ message: "User already exists." });}
@@ -28,11 +27,12 @@ const register =  async (req, res)=>{
         
         const otp = generateOTP();
         
-        tempRegistrations.set(email, { username, email, password, otp });
+        const tUser = new UserT({ email, otp});
+        await tUser.save();
                
         const testAccount = await nodemailer.createTestAccount();
 
-    // Create a transporter using the Ethereal SMTP credentials
+    
         const transporter = nodemailer.createTransport({
         host: testAccount.smtp.host,
         port: testAccount.smtp.port,
@@ -70,37 +70,23 @@ const register =  async (req, res)=>{
 }
 
 
-// Controller for OTP verification
- const verifyOTP = async (req, res) => {
+
+ const register = async (req, res) => {
   try {
-    const { email, userOTP } = req.body;
+    const { username,password , email, otp } = req.body;
 
-    // Check if there's a registration in progress for this email
-    const registrationData = tempRegistrations.get(email);
-
+    const registrationData = await UserT.findOne({ email});
     if (!registrationData) {
       return res.status(400).json({ error: "Registration data not found" });
-    }
+    };
 
-//har time run karne par new otp
-//ek time par sirf ek otp
-
-
-    if (registrationData.otp === userOTP) {
-      // If OTP matches, register the user and store their data in the database
-      const { username, email, password } = registrationData;
-
-      // Hash the password before saving it
+    if (registrationData.otp == otp) {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
       
-
-      // Create a new user with the hashed password
       const newUser = new User({ username, email, password: hashedPassword, isVerified: true });
       await newUser.save();
       const testAccount = await nodemailer.createTestAccount();
-
-      // Create a transporter using the Ethereal SMTP credentials
       const transporter = nodemailer.createTransport({
         host: testAccount.smtp.host,
         port: testAccount.smtp.port,
@@ -111,8 +97,14 @@ const register =  async (req, res)=>{
         },
       });
 
-      // Remove the temporary registration data
-      tempRegistrations.delete(email);
+      try {
+
+        const deletedUser = await UserT.findOneAndRemove(email);
+    
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to delete user" });
+      }
       const mailOptions = {
         from: mail,
         to: email,
@@ -163,6 +155,7 @@ const login = async (req,res)=>{
     }
 }
 
+
 const getProfile = async(req,res)=>{
     try{
             console.log(req._id);
@@ -181,14 +174,11 @@ const getProfile = async(req,res)=>{
 const updateUserProfile = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const updates = req.body; // New user profile data
-
-    // Hash the password before updating (if provided in updates)
+    const updates = req.body; 
     if (updates.password) {
       updates.password = await bcrypt.hash(updates.password, 10);
     }
 
-    // Find and update the user by ID
     const updatedUser = await User.findByIdAndUpdate(userId, updates, {
       new: true,
     });
@@ -204,12 +194,11 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-// Controller for deleting a user
+
 const deleteUser = async (req, res) => {
   try {
     const userId = req._id;
 
-    // Find and remove the user by ID
     const deletedUser = await User.findByIdAndRemove(userId);
 
     if (!deletedUser) {
@@ -223,4 +212,101 @@ const deleteUser = async (req, res) => {
   }
 };
 
-export { register, login ,getProfile,updateUserProfile,deleteUser,verifyOTP};
+// Follow a user
+const followUser =  async (req, res) => {
+  //const usernametofollow = req.params.username; // Get the user ID to follow
+  const { usernametofollow } = req.body;
+  // Check if the user exists
+  const userToFollow = await User.findOne({username: usernametofollow});
+  if (!userToFollow) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  // Get the currently authenticated user
+  const currentUser =  await User.findById(req._id); // Assuming you have the user in the request object
+  // Check if the user is already following the target user
+  if (currentUser.following.includes(usernametofollow.username)) {
+    res.status(400);
+    throw new Error("You are already following this user.");
+  }
+  
+  // Add the user to the current user's following list
+  currentUser.following.push(usernametofollow.username);
+
+  // Add the current user to the target user's followers list
+  userToFollow.followers.push(currentUser.username);
+
+  // Save both user documents to the database
+  await currentUser.save();
+  await userToFollow.save();
+
+  res.json({ message: "You are now following this user." });
+};
+
+// Unfollow a user
+const unfollowUser = async (req, res) => {
+  const { usernametounfollow } = req.body; // Get the user ID to unfollow
+
+  // Check if the user exists
+  const userToUnfollow = await User.findById(usernametounfollow);
+  if (!userToUnfollow) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  // Get the currently authenticated user
+  const currentUser = req._id; // Assuming you have the user in the request object
+
+  // Check if the user is not following the target user
+  if (!currentUser.following.includes(usernametounfollow)) {
+    res.status(400);
+    throw new Error("You are not following this user.");
+  }
+
+  // Remove the user from the current user's following list
+  currentUser.following = currentUser.following.filter(
+    (id) => id.toString() !== usernametounfollow
+  );
+
+  // Remove the current user from the target user's followers list
+  userToUnfollow.followers = userToUnfollow.followers.filter(
+    (id) => id.toString() !== currentUser._id.toString()
+  );
+
+  // Save both user documents to the database
+  await currentUser.save();
+  await userToUnfollow.save();
+
+  res.json({ message: "You have unfollowed this user." });
+};
+
+// Get followers of a user
+const getFollowers = async (req, res) => {
+  const userId = req.user._id; // Assuming you have the user in the request object
+
+  const user = await User.findById(userId).populate("followers");
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  res.json(user.followers);
+};
+
+// Get users that the current user is following
+const getFollowing = async (req, res) => {
+  const userId = req._id; // Assuming you have the user in the request object
+
+  const user = await User.findById(userId).populate("following");
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  res.json(user.following);
+};
+
+export {followUser, unfollowUser, getFollowers, getFollowing , register, login ,getProfile,updateUserProfile,deleteUser,sendOTP};

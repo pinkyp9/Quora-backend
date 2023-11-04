@@ -15,6 +15,7 @@ const questionSchema=new mongoose.Schema({
         ref: "User",
         required: true,
     }
+    
 })
 
 
