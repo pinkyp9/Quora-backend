@@ -173,19 +173,19 @@ const getProfile = async(req,res)=>{
 
 const updateUserProfile = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req._id;
     const updates = req.body; 
     if (updates.password) {
       updates.password = await bcrypt.hash(updates.password, 10);
     }
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updates, {
-      new: true,
+    await User.findByIdAndUpdate(userId, updates, {
+      new: false,
     });
 
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    // if (!updatedUser) {
+    //   return res.status(404).json({ error: "User not found" });
+    // }
 
     res.status(200).json(updatedUser);
   } catch (error) {
@@ -212,80 +212,69 @@ const deleteUser = async (req, res) => {
   }
 };
 
-// Follow a user
+
 const followUser =  async (req, res) => {
-  //const usernametofollow = req.params.username; // Get the user ID to follow
+  
   const { usernametofollow } = req.body;
-  // Check if the user exists
+  
   const userToFollow = await User.findOne({username: usernametofollow});
   if (!userToFollow) {
-    res.status(404);
-    throw new Error("User not found");
-  }
+    res.status(404).json({message:"user not found"});
+      }
 
-  // Get the currently authenticated user
-  const currentUser =  await User.findById(req._id); // Assuming you have the user in the request object
-  // Check if the user is already following the target user
-  if (currentUser.following.includes(usernametofollow.username)) {
-    res.status(400);
-    throw new Error("You are already following this user.");
-  }
   
-  // Add the user to the current user's following list
-  currentUser.following.push(usernametofollow.username);
-
-  // Add the current user to the target user's followers list
+  const currentUser =  await User.findById(req._id); 
+  
+  if (currentUser.following.includes(userToFollow.username)) {
+    res.status(400).json({message:"You are already following this user."});
+      }
+  
+  currentUser.following.push(userToFollow.username);
+  
   userToFollow.followers.push(currentUser.username);
 
-  // Save both user documents to the database
   await currentUser.save();
   await userToFollow.save();
 
   res.json({ message: "You are now following this user." });
 };
 
-// Unfollow a user
-const unfollowUser = async (req, res) => {
-  const { usernametounfollow } = req.body; // Get the user ID to unfollow
 
-  // Check if the user exists
-  const userToUnfollow = await User.findById(usernametounfollow);
+const unfollowUser = async (req, res) => {
+  const { usernametounfollow } = req.body;
+
+  const userToUnfollow = await User.findOne({username:usernametounfollow});
   if (!userToUnfollow) {
     res.status(404);
     throw new Error("User not found");
   }
 
-  // Get the currently authenticated user
-  const currentUser = req._id; // Assuming you have the user in the request object
+  const currentUser = await User.findById(req._id);
 
-  // Check if the user is not following the target user
   if (!currentUser.following.includes(usernametounfollow)) {
-    res.status(400);
-    throw new Error("You are not following this user.");
+    res.status(400).json({message:"You are not following this user."});
   }
 
-  // Remove the user from the current user's following list
   currentUser.following = currentUser.following.filter(
-    (id) => id.toString() !== usernametounfollow
+    (username) => username !== userToUnfollow.username
   );
 
-  // Remove the current user from the target user's followers list
   userToUnfollow.followers = userToUnfollow.followers.filter(
-    (id) => id.toString() !== currentUser._id.toString()
+    (username) => username !== currentUser.username
   );
 
-  // Save both user documents to the database
+
   await currentUser.save();
   await userToUnfollow.save();
 
   res.json({ message: "You have unfollowed this user." });
 };
 
-// Get followers of a user
-const getFollowers = async (req, res) => {
-  const userId = req.user._id; // Assuming you have the user in the request object
 
-  const user = await User.findById(userId).populate("followers");
+const getFollowers = async (req, res) => {
+  const userId = req._id; 
+
+  const user = await User.findById(userId);
 
   if (!user) {
     res.status(404);
@@ -295,11 +284,10 @@ const getFollowers = async (req, res) => {
   res.json(user.followers);
 };
 
-// Get users that the current user is following
 const getFollowing = async (req, res) => {
-  const userId = req._id; // Assuming you have the user in the request object
+  const userId = req._id; 
 
-  const user = await User.findById(userId).populate("following");
+  const user = await User.findById(userId);
 
   if (!user) {
     res.status(404);
