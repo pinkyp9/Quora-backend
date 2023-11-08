@@ -50,6 +50,8 @@ const userSchema = new mongoose.Schema({
           ref: "User",
         },
       ],
+      profilePicture:
+      {type:String}
 });
 
 const User = mongoose.model("user", userSchema);

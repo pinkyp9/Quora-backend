@@ -13,7 +13,7 @@ const url = process.env.MONGODB_URI;
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.use("uploads",express.static('uploads'));
 mongoose
     .connect(url)
     .then(() => {

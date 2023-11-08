@@ -1,11 +1,11 @@
 import express from "express";
 const router = express.Router();
-import {followUser,unfollowUser,getFollowers,getFollowing,register,login,getProfile,updateUserProfile,deleteUser,sendOTP}  from "../controllers/userControllers.js";
+import {followUser,uploadProfilePicture,unfollowUser,getFollowers,getFollowing,register,login,getProfile,updateUserProfile,deleteUser,sendOTP}  from "../controllers/userControllers.js";
 import authenticateUser from "../middleware/authMiddleware.js";
-
+import {upload} from "../middleware/valid.js";
 router.post("/register", register);
 
-router.post("/sendotp", sendOTP);
+router.post("/sendotp", sendOTP); 
 
 router.post("/login",login);
 
@@ -22,5 +22,7 @@ router.post("/unfollow", authenticateUser, unfollowUser);
 router.get("/followers", authenticateUser, getFollowers);
 
 router.get("/following", authenticateUser, getFollowing);
+
+router.post('/upload-profile-picture', authenticateUser ,upload.single('profilePicture'),uploadProfilePicture);
 
 export default router;
