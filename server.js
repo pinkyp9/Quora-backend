@@ -30,6 +30,7 @@ app.use("/user", userRoutes);
 app.use("/answer", answerRoutes);
 app.use("/question", questionRoutes);
 
+
 app.get("/",(req,res)=>{
     res.send("Welcome to your Q&A platform!");
 });

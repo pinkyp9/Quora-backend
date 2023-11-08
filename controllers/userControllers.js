@@ -5,8 +5,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-dotenv.config();
+import fileUpload from "express-fileupload";
+import { mailing } from "../utilities/mail.js";
 
+dotenv.config();
 
 const mail = process.env.email;
 
@@ -30,42 +32,11 @@ const sendOTP =  async (req, res)=>{
         const tUser = new UserT({ email, otp});
         await tUser.save();
                
-        const testAccount = await nodemailer.createTestAccount();
+        mailing(mail,email,"Registration OTP", `Your OTP for registration is: ${otp}`);
 
-    
-        const transporter = nodemailer.createTransport({
-        host: testAccount.smtp.host,
-        port: testAccount.smtp.port,
-        secure: testAccount.smtp.secure,
-        auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
-        },
-        });
-
-    const mailOption = {
-        from: mail,
-        to: email,
-        subject: "Registration OTP",
-        text: `Your OTP for registration is: ${otp}`,
-      };
-
-   
-      transporter.sendMail(mailOption, (error, info) => {
-        if (error) {
-          console.error("Email sending failed:", error);
-        } else {
-          console.log("Email sent:", info.response);
-          console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-        }
-
-
-      });
-
-
-      res.status(200).json({ message: "OTP sent for verification" });
+       res.status(200).json({ message: "OTP sent for verification" });
         }}
-     catch (error) {
+        catch (error) {
         res.status(500).json({ message: error.message });}
 }
 
@@ -86,16 +57,7 @@ const sendOTP =  async (req, res)=>{
       
       const newUser = new User({ username, email, password: hashedPassword, isVerified: true });
       await newUser.save();
-      const testAccount = await nodemailer.createTestAccount();
-      const transporter = nodemailer.createTransport({
-        host: testAccount.smtp.host,
-        port: testAccount.smtp.port,
-        secure: testAccount.smtp.secure,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
-      });
+      mailing(mail,email,"Registration Confirmation", "Thank you for registering with our platform!")
 
       try {
 
@@ -105,16 +67,6 @@ const sendOTP =  async (req, res)=>{
         console.error(error);
         res.status(500).json({ error: "Failed to delete user" });
       }
-      const mailOptions = {
-        from: mail,
-        to: email,
-        subject: "Registration Confirmation",
-         text: "Thank you for registering with our platform!",
-       };
-       const info = await transporter.sendMail(mailOptions);
-   
-       console.log("Message sent: %s", info.messageId);
-       console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
  
       res.status(200).json({ message: "Email verified, account activated" });
     } else {
@@ -122,7 +74,7 @@ const sendOTP =  async (req, res)=>{
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "OTP verification failed" });
+    res.status(500).json({ error: "registratoion failed" });
   }
 };
 
