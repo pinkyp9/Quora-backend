@@ -7,14 +7,26 @@ const answerSchema = new mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // Reference to a User model (if you have one)
+        ref: "User", 
         required: true,
     },
     question: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Question", // Reference to a Question model
+        ref: "Question",
         required: true,
-    }});
+    },
+    upvotes: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User', 
+        },
+      ],
+      downvotes: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      ]});
     
 const answer = mongoose.model('answers',answerSchema);
 

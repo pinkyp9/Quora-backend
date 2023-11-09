@@ -127,21 +127,18 @@ const getProfile = async(req,res)=>{
 
 const updateUserProfile = async (req, res) => {
   try {
-    const userId = req._id;
-    const updates = req.body; 
-    if (updates.password) {
-      updates.password = await bcrypt.hash(updates.password, 10);
+    const user = await User.findById(req._id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+     }
+    const {password,email} = req.body; 
+    if (password) {
+      user.password = await bcrypt.hash(password, 10);
     }
-
-    await User.findByIdAndUpdate(userId, updates, {
-      new: false,
-    });
-
-    // if (!updatedUser) {
-    //   return res.status(404).json({ error: "User not found" });
-    // }
-
-    res.status(200).json(updatedUser);
+    if(email)
+    {user.email = email;}
+    await user.save();
+    res.status(200).json(user);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to update user profile" });
