@@ -10,7 +10,7 @@ const answerSchema = new mongoose.Schema({
         ref: "User", 
         required: true,
     },
-    question: {
+    questiona: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Question",
         required: true,
