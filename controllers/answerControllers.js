@@ -1,14 +1,23 @@
 import answer from '../model/answerModel.js';
 import question from '../model/questionModel.js';
+import dotenv from "dotenv";
+import { mailing } from "../utilities/mail.js";
+import { User } from '../model/userModel.js';
+dotenv.config();
+
+const mail = process.env.email;
+
 const Answer = async (req, res) => {
     try {
         const {content,questiona} = req.body;
         const user = req._id;
         const ans = new answer({ content, questiona, user });
         const q = await question.findById(questiona);
+        const userr = await User.findById(q.user);
         q.answers.push(ans);
         await ans.save();
         await q.save();
+        mailing(mail,userr.email,"answered", 'someone answered your question');
         console.log("answer saved successfully");
         res.status(201).json(ans);
     } catch (err) {
@@ -90,6 +99,7 @@ const upvoteAnswer = async (req, res) => {
       
       await upanswer.save();
       res.status(200).json(upanswer);
+      console.log(`number of upvotes:${upanswer.upvotes.length}`);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
