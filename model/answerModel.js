@@ -10,7 +10,7 @@ const answerSchema = new mongoose.Schema({
         ref: "User", 
         required: true,
     },
-    questiona: {
+    question: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Question",
         required: true,
@@ -28,6 +28,6 @@ const answerSchema = new mongoose.Schema({
         },
       ]});
     
-const answer = mongoose.model('answers',answerSchema);
+const Answer = mongoose.model('answers',answerSchema);
 
-export default answer;
+export default Answer;

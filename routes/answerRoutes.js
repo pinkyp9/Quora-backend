@@ -1,10 +1,10 @@
 import express from "express";
 const router = express.Router();
 import authenticateUser from "../middleware/authMiddleware.js";
-import {Answer,display,updateAnswer,deleteAnswer,upvoteAnswer,downvoteAnswer} from  "../controllers/answerControllers.js";
+import {Answerit,display,updateAnswer,deleteAnswer,upvoteAnswer,downvoteAnswer} from  "../controllers/answerControllers.js";
 
 
-router.post('/uranswer',authenticateUser,Answer)
+router.post('/uranswer',authenticateUser,Answerit)
 router.get('/displayallanswer',authenticateUser,display)
 router.patch('/updateanswer',authenticateUser,updateAnswer)
  router.delete('/deleteanswer',authenticateUser,deleteAnswer)

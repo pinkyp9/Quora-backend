@@ -1,5 +1,5 @@
-import answer from '../model/answerModel.js';
-import question from '../model/questionModel.js';
+import Answer from '../model/answerModel.js';
+import Question from '../model/questionModel.js';
 import dotenv from "dotenv";
 import { mailing } from "../utilities/mail.js";
 import { User } from '../model/userModel.js';
@@ -7,16 +7,13 @@ dotenv.config();
 
 const mail = process.env.email;
 
-const Answer = async (req, res) => {
+const Answerit = async (req, res) => {
     try {
         const {content,questiona} = req.body;
         const user = req._id;
-        const ans = new answer({ content, questiona, user });
-        const q = await question.findById(questiona);
+        const ans = new Answer({ content, questiona, user });
         const userr = await User.findById(q.user);
-        q.answers.push(ans);
         await ans.save();
-        await q.save();
         mailing(mail,userr.email,"answered", 'someone answered your question');
         console.log("answer saved successfully");
         res.status(201).json(ans);
@@ -29,7 +26,7 @@ const Answer = async (req, res) => {
 const display = async (req, res) => {
     try {
         const user = req._id;
-        const answers = await answer.find({user:user});
+        const answers = await Answer.find({user:user});
         res.json(answers);
     } catch (error) {
         console.error(error);
@@ -40,7 +37,7 @@ const display = async (req, res) => {
 const updateAnswer = async(req,res)=>{
     try{
         const{content , answerId } = req.body;
-        const updateanswer = await answer.findById(answerId);
+        const updateanswer = await Answer.findById(answerId);
         if(updateanswer.user == req._id)
         {
             updateanswer.content = content;
@@ -60,12 +57,12 @@ const updateAnswer = async(req,res)=>{
 const deleteAnswer = async(req,res)=>{
     try{
         const {answerId}  = req.body;
-        const d = await answer.findById(answerId);
+        const d = await Answer.findById(answerId);
         if(!d)
         {res.json("answerid not found ")}
         else{
         if(d.user == req._id){
-        await answer.findByIdAndDelete(answerId);
+        await Answer.findByIdAndDelete(answerId);
         res.status(201).json("answer deleted");}
         else{
             res.json('u cant delete some else answer');
@@ -82,7 +79,7 @@ const upvoteAnswer = async (req, res) => {
     const { answerId } = req.body;
     const userId = req._id;
     try {
-      const upanswer = await answer.findById(answerId);
+      const upanswer = await Answer.findById(answerId);
       if (!upanswer) {
         return res.status(404).json({ message: 'Answer not found' });
       }
@@ -110,7 +107,7 @@ const upvoteAnswer = async (req, res) => {
     const { answerId } = req.body; 
     const userId = req._id;
     try {
-      const danswer = await answer.findById(answerId);
+      const danswer = await Answer.findById(answerId);
   
       if (!danswer) {
         return res.status(404).json({ message: 'Answer not found' });
@@ -134,4 +131,4 @@ const upvoteAnswer = async (req, res) => {
     
 
 
-export {Answer,display,updateAnswer,deleteAnswer,upvoteAnswer,downvoteAnswer};
+export {Answerit,display,updateAnswer,deleteAnswer,upvoteAnswer,downvoteAnswer};

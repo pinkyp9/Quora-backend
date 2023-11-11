@@ -17,18 +17,14 @@ const questionSchema=new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    answers: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Answer', 
-        },
-      ],
-    
+    file: {
+        type: String,
+    },
 },{
     timestamps:true,
 })
 
 
-const question = mongoose.model('Question',questionSchema);
+const Question = mongoose.model('Question',questionSchema);
 
-export default question;
+export default Question;

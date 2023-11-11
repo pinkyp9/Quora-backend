@@ -5,7 +5,6 @@ import {askQuestion,updateQuestion,deleteQuestion,catQuestions,allanswers} from 
 
 
 router.post('/askQuestion',authenticateUser,askQuestion);
-//router.post('/uploadQuestion',authenticateUser,uploadQuestion);
 router.put('/updateQuestion',authenticateUser,updateQuestion);
 router.delete('/deleteQuestion',authenticateUser,deleteQuestion);
 router.get('/getcategoryquestions',catQuestions);
