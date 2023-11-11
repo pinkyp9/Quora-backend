@@ -3,9 +3,10 @@ const router = express.Router();
 import {followUser,uploadProfilePicture,unfollowUser,getFollowers,getFollowing,register,login,getProfile,updateUserProfile,deleteUser,sendOTP}  from "../controllers/userControllers.js";
 import authenticateUser from "../middleware/authMiddleware.js";
 import {upload} from "../middleware/valid.js";
-router.post("/register", register);
 
 router.post("/sendotp", sendOTP); 
+
+router.post("/register", register);
 
 router.post("/login",login);
 

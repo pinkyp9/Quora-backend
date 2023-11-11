@@ -12,4 +12,5 @@ router.get('/getcategoryquestions',catQuestions);
 router.get('/getallanswers',allanswers);
 
 
+
 export default router;

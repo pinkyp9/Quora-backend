@@ -1,14 +1,8 @@
-import express from "express";
 import {User,UserT} from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import fileUpload from "express-fileupload";
 import { mailing } from "../utilities/mail.js";
-
-
-
 
 dotenv.config();
 
@@ -42,8 +36,6 @@ const sendOTP =  async (req, res)=>{
         res.status(500).json({ message: error.message });}
 }
 
-
-
  const register = async (req, res) => {
   try {
     const { username,password , email, otp } = req.body;
@@ -63,7 +55,7 @@ const sendOTP =  async (req, res)=>{
 
       try {
 
-        const deletedUser = await UserT.findOneAndRemove(email);
+        await UserT.findOneAndDelete(email);
     
       } catch (error) {
         console.error(error);
@@ -79,8 +71,6 @@ const sendOTP =  async (req, res)=>{
     res.status(500).json({ error: "registratoion failed" });
   }
 };
-
-
 
 const login = async (req,res)=>{
     try {
@@ -109,7 +99,6 @@ const login = async (req,res)=>{
     }
 }
 
-
 const getProfile = async(req,res)=>{
     try{
             console.log(req._id);
@@ -122,8 +111,6 @@ const getProfile = async(req,res)=>{
         res.status(500).json({message:"error"})
     }
 }
-
-
 
 const updateUserProfile = async (req, res) => {
   try {
@@ -145,12 +132,11 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-
 const deleteUser = async (req, res) => {
   try {
     const userId = req._id;
 
-    const deletedUser = await User.findByIdAndRemove(userId);
+    const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {
       return res.status(404).json({ error: "User not found" });
@@ -163,8 +149,8 @@ const deleteUser = async (req, res) => {
   }
 };
 
-
 const followUser =  async (req, res) => {
+  try{
   
   const { usernametofollow } = req.body;
   
@@ -188,10 +174,12 @@ const followUser =  async (req, res) => {
   await userToFollow.save();
 
   res.json({ message: "You are now following this user." });
-};
-
+}catch(error){
+  res.send(400).json(error);
+}};
 
 const unfollowUser = async (req, res) => {
+  try{
   const { usernametounfollow } = req.body;
 
   const userToUnfollow = await User.findOne({username:usernametounfollow});
@@ -219,10 +207,11 @@ const unfollowUser = async (req, res) => {
   await userToUnfollow.save();
 
   res.json({ message: "You have unfollowed this user." });
-};
-
+}catch(error)
+{res.status(500).json({ message: error.message });}};
 
 const getFollowers = async (req, res) => {
+  try{
   const userId = req._id; 
 
   const user = await User.findById(userId);
@@ -233,9 +222,12 @@ const getFollowers = async (req, res) => {
   }
 
   res.json(user.followers);
-};
+}catch(error){
+  res.status(500).json({ message: error.message });
+}};
 
 const getFollowing = async (req, res) => {
+  try{
   const userId = req._id; 
 
   const user = await User.findById(userId);
@@ -246,7 +238,9 @@ const getFollowing = async (req, res) => {
   }
 
   res.json(user.following);
-};
+}catch(error){
+  res.status(500).json({ message: error.message });
+}};
 
 const uploadProfilePicture =  async(req,res) =>{
   try {
@@ -268,7 +262,5 @@ const uploadProfilePicture =  async(req,res) =>{
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
-
 
 export {followUser, unfollowUser, getFollowers, getFollowing , register, login ,getProfile,updateUserProfile,deleteUser,sendOTP,uploadProfilePicture};
