@@ -99,7 +99,7 @@ const login = async (req,res)=>{
     }
 }
 
-const getProfile = async(req,res)=>{
+const getmyProfile = async(req,res)=>{
     try{
             console.log(req._id);
             const user = await User.findById(req._id);
@@ -110,6 +110,19 @@ const getProfile = async(req,res)=>{
         console.log(error);
         res.status(500).json({message:"error"})
     }
+}
+
+const getProfile = async(req,res)=>{
+  try{
+          const {userId} = req.body;
+          const user = await User.findById(userId);
+          res.status(200).json({message: 'Authenticated route', userId, user});
+
+      }
+  catch(error){
+      console.log(error);
+      res.status(500).json({message:"error"})
+  }
 }
 
 const updateUserProfile = async (req, res) => {
@@ -263,4 +276,4 @@ const uploadProfilePicture =  async(req,res) =>{
   }
 };
 
-export {followUser, unfollowUser, getFollowers, getFollowing , register, login ,getProfile,updateUserProfile,deleteUser,sendOTP,uploadProfilePicture};
+export {followUser, unfollowUser, getFollowers, getFollowing , register, login ,getProfile,getmyProfile,updateUserProfile,deleteUser,sendOTP,uploadProfilePicture};
