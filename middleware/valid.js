@@ -8,7 +8,7 @@ var storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, "C:/Users/Pinky Pamecha/OneDrive/Desktop/qoura unicode/alluploads/profilePics");
     },
-    filename: function(req, file, cb) {
+    filename:(req, file, cb)=> {
         let ext = extname(file.originalname); // Use extname to get the file extension
         cb(null, ext);
     }
@@ -16,13 +16,13 @@ var storage = multer.diskStorage({
 
 var upload = multer({
     storage: storage,
-     fileFilter: function(req, file, callback) {
+     fileFilter: (req, file, cb)=> {
          if (
              file.mimetype === "image/png" || // Correct mimetype strings
              file.mimetype === "image/jpeg" // Correct mimetype strings
              
          ) {
-             callback(null, true);
+             cb(null, true);
          } else {
              console.log('Only jpg/png files supported!');
              callback(null, false);
@@ -33,4 +33,30 @@ var upload = multer({
      }
 });
 
-export { upload };
+var storageCloudinary = multer.diskStorage({
+    filename:(req, file, cb)=> {
+        let ext = extname(file.originalname); // Use extname to get the file extension
+        cb(null, ext);
+    }
+});
+
+var uploadCloudinary = multer({
+    storage: storageCloudinary,
+     fileFilter: (req, file, cb)=> {
+         if (
+             file.mimetype === "image/png" || // Correct mimetype strings
+             file.mimetype === "image/jpeg" // Correct mimetype strings
+             
+         ) {
+             cb(null, true);
+         } else {
+             console.log('Only jpg/png files supported!');
+             cb(null, false);
+         }
+     },
+     limits: {
+         fileSize: 1024 * 1024 * 2
+     }
+});
+
+export { upload , uploadCloudinary };
