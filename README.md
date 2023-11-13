@@ -45,4 +45,44 @@ followers:
 delete:
 <img width="860" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/6e99ab37-1365-41a9-9108-77764df374a2">
 
+QUESTION ROUTE
+
+ask quextion:
+<img width="864" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/f641d4f4-4c29-48f0-9c7f-22bd1df01942">
+
+get all questions of category:
+<img width="862" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/1bade2d8-59a4-460b-bb7f-0306506d8555">
+
+update question:
+<img width="861" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/41445aa4-d476-4c64-8032-6cd17d38b777">
+
+delete question:
+<img width="851" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/d131b598-0d00-4942-a646-d392df137389">
+
+get all answers:
+<img width="852" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/19deea97-9700-43a9-9724-975eef9568ba">
+
+
+ANSWER ROUTE:
+ur answer:
+<img width="839" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/132b4e68-4755-4752-b097-9fbed9009111">
+
+display all answers given by user:
+<img width="851" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/64dcbfd5-557c-4af0-be4a-150351a0003d">
+
+update the answer:
+<img width="854" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/63a40d07-2667-4237-bd73-cc842e9ec275">
+
+upvote the answer:
+
+<img width="855" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/cfa1ab17-29a6-4689-965d-86494cfb11f7">
+
+downvote the answer:
+<img width="851" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/ae8386ba-b9aa-4b68-8f3a-aed1c02eb058">
+
+delete the  answer:
+<img width="867" alt="image" src="https://github.com/pinkyp9/unicode-lp/assets/128229194/a215bb43-1007-46ba-8799-7756ef8789cb">
+
+
+
 
