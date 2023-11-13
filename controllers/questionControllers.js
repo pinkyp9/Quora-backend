@@ -57,7 +57,7 @@ const askQuestion = async (req, res) => {
       if (!dquestion) {
         return res.status(404).json({ error: 'Question not found' });
       }
-      await question.findByIdAndDelete(questionId);
+      await Question.findByIdAndDelete(questionId);
       res.json({ message: 'Question deleted' });
     } catch (error) {
       console.error(error);
@@ -85,13 +85,13 @@ const catQuestions = async (req, res) => {
 
 const allanswers = async (req, res) => {
     try {
-      const questionId = req.body;
+      const {questionId} = req.body;
       const aquestion = await Answer.find({question:questionId});
-      const finala=[];
+       const finala=[];
       aquestion.forEach((answer)=>{
-        finala.push(answer);
-      });
-      res.status(201).json(finala);
+         finala.push(answer);
+       });
+       res.status(201).json(finala);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Failed to retrieve all answers' });

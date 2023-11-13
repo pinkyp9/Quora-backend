@@ -9,10 +9,12 @@ const mail = process.env.email;
 
 const Answerit = async (req, res) => {
     try {
-        const {content,questiona} = req.body;
+        const {content,question} = req.body;
         const user = req._id;
-        const ans = new Answer({ content, questiona, user });
-        const userr = await User.findById(q.user);
+        console.log(user);
+        const ans = new Answer({ content, question, user });
+        const userr = await User.find({userId:user});
+        console.log(userr);
         await ans.save();
         mailing(mail,userr.email,"answered", 'someone answered your question');
         console.log("answer saved successfully");
