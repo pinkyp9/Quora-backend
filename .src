@@ -1,7 +1,0 @@
-PORT = 5001
-MONGODB_URI = "mongodb+srv://pinkypamecha9:1234pinky@cluster0.ijfs9az.mongodb.net/?retryWrites=true&w=majority"
-JWT_SECRET = Pinky@934
-email = "thepinkypamecha@gmail.com"
-CLOUD_NAME = 'dohbbhegm'
-CLOUDINARY_API_KEY = '211115418527952'
-CLOUDINARY_API_SECRET = 'vTj0kopD40nGk4ltsXoeHU_DNwg' 
