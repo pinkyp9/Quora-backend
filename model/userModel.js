@@ -5,7 +5,6 @@ const tempSchema = new mongoose.Schema({
 email: {
   type: String,
   required: true,
-  unique: true,
   validate: {
     validator: validator.validate, // Use email-validator's validate function
     message: "Invalid email address",
@@ -53,6 +52,7 @@ const userSchema = new mongoose.Schema({
   ],
   profilePicture:
     {type:String},
+
   role: {
       type: String,
       enum: ['admin', 'regular','premium'],

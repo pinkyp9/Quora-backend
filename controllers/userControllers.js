@@ -24,10 +24,15 @@ const sendOTP =  async (req, res)=>{
         else{
         
         const otp = generateOTP();
-        
+        const a = await UserT.findOne({email});
+        if(!a){
         const tUser = new UserT({ email, otp});
         await tUser.save();
-               
+        }
+        else{
+          a.otp = otp;
+          await a.save();
+        }
         mailing(mail,email,"Registration OTP", `Your OTP for registration is: ${otp}`);
 
        res.status(200).json({ message: "OTP sent for verification" });
@@ -44,7 +49,10 @@ const sendOTP =  async (req, res)=>{
     if (!registrationData) {
       return res.status(400).json({ error: "Registration data not found" });
     };
-
+    if(!username || !password || !email || !otp ){
+      return res.status(400).json({error : "fill all the feilds"});
+    }
+  
     if (registrationData.otp == otp) {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -55,7 +63,7 @@ const sendOTP =  async (req, res)=>{
 
       try {
 
-        await UserT.findOneAndDelete(email);
+        await UserT.findOneAndDelete({email});
     
       } catch (error) {
         console.error(error);
@@ -114,9 +122,9 @@ const getmyProfile = async(req,res)=>{
 
 const getProfile = async(req,res)=>{
   try{
-          const {userId} = req.body;
-          const user = await User.findById(userId);
-          res.status(200).json({message: 'Authenticated route', userId, user});
+          const {username} = req.body;
+          const user = await User.findOne({username});
+          res.status(200).json({message: 'Authenticated route', user});
 
       }
   catch(error){
@@ -131,12 +139,16 @@ const updateUserProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
      }
-    const {password,email} = req.body; 
+    const {password,username} = req.body; 
+    const n = await User.findOne({username});
     if (password) {
       user.password = await bcrypt.hash(password, 10);
     }
-    if(email)
-    {user.email = email;}
+    if(!n && username)
+    {user.username = username;}
+    else{
+      return res.status(404).json({error:"username already taken"});
+    }
     await user.save();
     res.status(200).json(user);
   } catch (error) {
@@ -188,33 +200,28 @@ const followUser =  async (req, res) => {
 
   res.json({ message: "You are now following this user." });
 }catch(error){
-  res.send(400).json(error);
+  res.status(400).json(error);
 }};
 
 const unfollowUser = async (req, res) => {
   try{
   const { usernametounfollow } = req.body;
-
   const userToUnfollow = await User.findOne({username:usernametounfollow});
   if (!userToUnfollow) {
     res.status(404);
     throw new Error("User not found");
   }
-
   const currentUser = await User.findById(req._id);
-
   if (!currentUser.following.includes(usernametounfollow)) {
     res.status(400).json({message:"You are not following this user."});
   }
-
   currentUser.following = currentUser.following.filter(
-    (username) => username !== userToUnfollow.username
+    (username) => username.toString() !== usernametounfollow
   );
 
   userToUnfollow.followers = userToUnfollow.followers.filter(
-    (username) => username !== currentUser.username
+    (username) => username.toString() !== currentUser
   );
-
 
   await currentUser.save();
   await userToUnfollow.save();
