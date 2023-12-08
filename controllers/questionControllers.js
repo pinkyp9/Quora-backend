@@ -1,26 +1,25 @@
 import Question from '../model/questionModel.js';
 import Answer from '../model/answerModel.js';
 import { cloudinary } from '../middleware/cloudinary.js';
-import multer from 'multer';
 const askQuestion = async (req, res) => {
     try {   
-      console.log(req.body);
-      const userId = req._id;
+      const userId = req.userId;
       const { questionText , category } = req.body;
-      console.log(questionText,category);
-      if (!req.file) {
+      if(!questionText || !category){
+        return res.status(400).json({error:'fill all the feilds'});
+      }
+      if (!req.file ) {
         const questionasked = new Question({ questionText, category, user: userId });
         await questionasked.save(); 
-        res.status(201).json(questionasked);
-        return res.status(400).json({ error: 'No file uploaded' });
+        return res.status(201).json(questionasked);
+        //return res.status(400).json({ error: 'No file uploaded' });
       }
       else{
       const result = await cloudinary.uploader.upload(req.file.path);
       console.log(result);
-      //, {public_id:`${req._id}_questions_`,resource_type: 'auto',}
       const questionasked = new Question({ questionText, category, user: userId ,file:result.secure_url});
       await questionasked.save(); 
-      res.status(201).json(questionasked);
+      return res.status(201).json(questionasked);
       }
     }catch (error) {
       console.error(error);
