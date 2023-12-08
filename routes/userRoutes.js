@@ -1,9 +1,12 @@
 import express from "express";
-import {followUser,getmyProfile,uploadProfilePicture,unfollowUser,getFollowers,getFollowing,register,login,getProfile,updateUserProfile,deleteUser,sendOTP}  from "../controllers/userControllers.js";
+import {followUser,getmyProfile,changeRole,uploadProfilePicture,unfollowUser,getFollowers,getFollowing,register,login,getProfile,updateUserProfile,deleteUser,sendOTP}  from "../controllers/userControllers.js";
 import authenticateUser from "../middleware/authMiddleware.js";
+import authorizePremium from "../middleware/premiumUsers.js";
 import {upload} from "../middleware/valid.js";
 
 const router = express.Router();
+
+router.put("/changerole",authenticateUser,changeRole);
 
 router.post("/sendotp", sendOTP); 
 
@@ -27,6 +30,6 @@ router.get("/followers", authenticateUser, getFollowers);
 
 router.get("/following", authenticateUser, getFollowing);
 
-router.post('/upload-profile-picture', authenticateUser ,upload.single('profilePicture'),uploadProfilePicture);
+router.post('/upload-profile-picture', authenticateUser,authorizePremium,upload.single('profilePicture'),uploadProfilePicture);
 
 export default router;

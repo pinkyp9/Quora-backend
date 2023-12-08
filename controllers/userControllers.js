@@ -109,9 +109,9 @@ const login = async (req,res)=>{
 
 const getmyProfile = async(req,res)=>{
     try{
-            console.log(req._id);
-            const user = await User.findById(req._id);
-            res.status(200).json({message: 'Authenticated route', userId: req._id, user});
+            console.log(req.userId);
+            const user = await User.findById(req.userId);
+            res.status(200).json({message: 'Authenticated route', userId: req.userId, user});
 
         }
     catch(error){
@@ -135,7 +135,7 @@ const getProfile = async(req,res)=>{
 
 const updateUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req._id);
+    const user = await User.findById(req.userId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
      }
@@ -159,7 +159,7 @@ const updateUserProfile = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const userId = req._id;
+    const userId = req.userId;
 
     const deletedUser = await User.findByIdAndDelete(userId);
 
@@ -185,7 +185,7 @@ const followUser =  async (req, res) => {
       }
 
   
-  const currentUser =  await User.findById(req._id); 
+  const currentUser =  await User.findById(req.userId); 
   
   if (currentUser.following.includes(userToFollow.username)) {
     res.status(400).json({message:"You are already following this user."});
@@ -211,7 +211,7 @@ const unfollowUser = async (req, res) => {
     res.status(404);
     throw new Error("User not found");
   }
-  const currentUser = await User.findById(req._id);
+  const currentUser = await User.findById(req.userId);
   if (!currentUser.following.includes(usernametounfollow)) {
     res.status(400).json({message:"You are not following this user."});
   }
@@ -232,7 +232,7 @@ const unfollowUser = async (req, res) => {
 
 const getFollowers = async (req, res) => {
   try{
-  const userId = req._id; 
+  const userId = req.userId; 
 
   const user = await User.findById(userId);
 
@@ -248,7 +248,7 @@ const getFollowers = async (req, res) => {
 
 const getFollowing = async (req, res) => {
   try{
-  const userId = req._id; 
+  const userId = req.userId; 
 
   const user = await User.findById(userId);
 
@@ -264,7 +264,7 @@ const getFollowing = async (req, res) => {
 
 const uploadProfilePicture =  async(req,res) =>{
   try {
-    const user = await User.findById(req._id); 
+    const user = await User.findById(req.userId); 
   
 
     if (!user) {
@@ -283,4 +283,24 @@ const uploadProfilePicture =  async(req,res) =>{
   }
 };
 
-export {followUser, unfollowUser, getFollowers, getFollowing , register, login ,getProfile,getmyProfile,updateUserProfile,deleteUser,sendOTP,uploadProfilePicture};
+const changeRole = async(req,res)=>{
+  try {
+    const {role} = req.body;
+    const user = await User.findById(req.userId); 
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if(role == user.role){
+      return res.status(404).json({message:"current role is these only"});
+    }
+    user.role = role;
+    await user.save();
+    return res.status(200).json({ message: 'role changed successfully' });
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+    
+  }
+}
+export {followUser, unfollowUser, getFollowers, getFollowing , register, login ,getProfile,getmyProfile,updateUserProfile,deleteUser,sendOTP,uploadProfilePicture,changeRole};
