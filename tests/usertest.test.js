@@ -22,7 +22,7 @@ const token = testUser1.tokens[0].token;
 
 let myotp;
 
-test("send otp",async(done)=>{
+test("send otp",async()=>{
     const response = await request(app)
     .post('/user/sendotp')
     .send({        
