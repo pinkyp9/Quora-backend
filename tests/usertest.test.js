@@ -1,19 +1,20 @@
-import { request } from 'supertest';
-import { jwt } from 'jsonwebtoken';
+import request from 'supertest';
+import  jwt  from 'jsonwebtoken';
+const dotenv=require('dotenv').config()
 import mongoose from 'mongoose';
-//import { User } from '../model/userModel';
-import { app } from 'express';
+// import { User } from '../model/userModel';
+import app from '../server';
 import connectDb from '../config/dbConnection';
-connectDb();
+connectDb;
+const _id=new mongoose.Types.ObjectId()
 const testUser1 = {
-  _id: new mongoose.Types.ObjectId(),
+  _id: _id,
   username: 'testuser1',
   password: 'testpanpmssword1',
   email: 'testuser1@gmail.com',
   role: 'regular',
-  tokens: [{ token: jwt.sign( { userId:_id }, process.env.JWT_SECRE) }],
+  tokens: [{ token: jwt.sign( { userId:_id }, process.env.JWT_SECRET) }],
 };
-
 const token = testUser1.tokens[0].token;
 
 test("send otp",async()=>{
