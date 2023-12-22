@@ -32,7 +32,7 @@ app.use((err,req,res,next) => {
 })
 
 app.get("/",(req,res)=>{
-    res.send("Welcome to your Q&A platform!");
+    res.status(200).send("Welcome to your Q&A platform!");
 });
 
 const server = app.listen(port,()=>{

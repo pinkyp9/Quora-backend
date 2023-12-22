@@ -114,7 +114,7 @@ test('Upload profile picture', async () => {
   await request(app)
     .post('/user/upload-profile-picture')
     .set('Authorization', `Bearer ${newtoken}`)
-    .attach('file', 'C:\Users\Pinky Pamecha\OneDrive\Pictures\Screenshots\Screenshot 2023-08-26 021312')
+    .attach('file', ('C:\Users\Pinky Pamecha\OneDrive\Pictures\Screenshots\Screenshot 2023-08-26 021312'))
     .expect(200);
 });
 */
