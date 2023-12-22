@@ -21,14 +21,14 @@ const mailing = async(sender,receiver,subject,text)=>{
 
    
         transporter.sendMail(mailOption, (error, info) => {
-        if (error) {
-          console.error("Email sending failed:", error);
-        } 
-        else {
-          console.log("Email sent:", info.response);
-          console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-        }
-      });
+    if (error) {
+      console.error("Email sending failed:", error);
+    }
+    else {
+      console.log("Email sent:", info.response);
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    }
+  });
     }
 
     export {mailing};

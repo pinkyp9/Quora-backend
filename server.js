@@ -35,7 +35,7 @@ app.get("/",(req,res)=>{
     res.send("Welcome to your Q&A platform!");
 });
 
-app.listen(port,()=>{
+const server = app.listen(port,()=>{
     console.log(`server is running on port ${port}`);
 });
-export default app;
+export {app,server};

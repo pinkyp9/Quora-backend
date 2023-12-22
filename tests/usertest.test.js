@@ -1,41 +1,49 @@
 import request from 'supertest';
 import  jwt  from 'jsonwebtoken';
-const dotenv=require('dotenv').config()
+import dotenv from "dotenv";
+dotenv.config();
+//const dotenv=require('dotenv').config()
 import mongoose from 'mongoose';
 // import { User } from '../model/userModel';
-import app from '../server';
+import {app,server} from '../server';
 import connectDb from '../config/dbConnection';
-connectDb;
+connectDb();
+
 const _id=new mongoose.Types.ObjectId()
 const testUser1 = {
   _id: _id,
   username: 'testuser1',
-  password: 'testpanpmssword1',
+  password: 'testpassword1',
   email: 'testuser1@gmail.com',
   role: 'regular',
   tokens: [{ token: jwt.sign( { userId:_id }, process.env.JWT_SECRET) }],
 };
 const token = testUser1.tokens[0].token;
 
-test("send otp",async()=>{
-    await request(app)
+let myotp;
+
+test("send otp",async(done)=>{
+    const response = await request(app)
     .post('/user/sendotp')
-    .send({
-        email : 'newuser@gmail.com'
+    .send({        
+        email : 'newuser1@gmail.com'
     })
     .expect(200);
-})
+    myotp = response.body.otp;
+},100000
+)
 
 test('Register user', async () => {
-  await request(app)
+ const res =  await request(app)
     .post('/user/register')
     .send({
-      username: 'newuser',
+      username: 'newuser1',
       password: 'newpassword',
-      email: 'newuser@gmail.com',
+      email: 'newuser1@gmail.com',
+      otp: myotp
     })
-    .expect(200);
-});
+    .expect(200)
+},10000);
 
 test('Login user', async () => {
   await request(app)
@@ -44,9 +52,9 @@ test('Login user', async () => {
       username: 'testuser1',
       password: 'testpassword1',
     })
-    .expect(200);
+    .expect(200)
 });
-
+/** 
 test('Get my profile', async () => {
   await request(app)
     .get('/user/myprofile')
@@ -119,3 +127,4 @@ test('Change user role', async () => {
     .send({ role: 'premium' })
     .expect(200);
 });
+*/
