@@ -1,24 +1,49 @@
 import Answer from '../model/answerModel.js';
-import Question from '../model/questionModel.js';
 import dotenv from "dotenv";
 import { mailing } from "../utilities/mail.js";
 import { User } from '../model/userModel.js';
+import { cloudinary } from '../middleware/cloudinary.js';
 dotenv.config();
 
 const mail = process.env.email;
 
 const Answerit = async (req, res) => {
     try {
-        const {content,question} = req.body;
-        const user = req._id;
-        console.log(user);
-        const ans = new Answer({ content, question, user });
-        const userr = await User.find({userId:user});
-        console.log(userr);
-        await ans.save();
-        mailing(mail,userr.email,"answered", 'someone answered your question');
-        console.log("answer saved successfully");
-        res.status(201).json(ans);
+    const { content, questionId } = req.body;
+    const userId = req.userId;
+    const files = req.files;
+    if(!content || !questionId){
+      return res.status(401).json({error:"fill all the feilds"});
+    }
+    if(!files){
+      const ans = new Answer({ content, question:questionId, user:userId });
+      const userr = await User.find({userId});
+      await ans.save();
+      mailing(mail,userr.email,"answered", 'someone answered your question');
+      console.log("answer saved successfully");
+      return res.status(201).json(ans);}
+  else{
+    let uploadedFiles=[];
+    const userr = await User.find({userId});
+    uploadedFiles = await Promise.all(
+      files.map(async (file) => {
+        const result = await cloudinary.uploader.upload(file.buffer, {
+          folder: 'answer-uploads',
+        });
+        return { filename: result.original_filename, url: result.secure_url };
+      })
+    );
+    const answer = new Answer({
+      content,
+      user: userId,
+      question: questionId,
+      files: uploadedFiles,
+    });
+    await answer.save();
+    mailing(mail,userr.email,"answered", 'someone answered your question');
+      console.log("answer saved successfully");
+      return res.status(201).json(ans);
+  }      
     } catch (err) {
         console.error(err);
         res.send(err);
@@ -27,7 +52,7 @@ const Answerit = async (req, res) => {
 
 const display = async (req, res) => {
     try {
-        const user = req._id;
+        const user = req.userId;
         const answers = await Answer.find({user:user});
         res.json(answers);
     } catch (error) {
@@ -40,7 +65,7 @@ const updateAnswer = async(req,res)=>{
     try{
         const{content , answerId } = req.body;
         const updateanswer = await Answer.findById(answerId);
-        if(updateanswer.user == req._id)
+        if(updateanswer.user == req.userId)
         {
             updateanswer.content = content;
             await updateanswer.save();
@@ -63,7 +88,7 @@ const deleteAnswer = async(req,res)=>{
         if(!d)
         {res.json("answerid not found ")}
         else{
-        if(d.user == req._id){
+        if(d.user == req.userId){
         await Answer.findByIdAndDelete(answerId);
         res.status(201).json("answer deleted");}
         else{
@@ -79,7 +104,7 @@ const deleteAnswer = async(req,res)=>{
 
 const upvoteAnswer = async (req, res) => {
     const { answerId } = req.body;
-    const userId = req._id;
+    const userId = req.userId;
     try {
       const upanswer = await Answer.findById(answerId);
       if (!upanswer) {
@@ -107,7 +132,7 @@ const upvoteAnswer = async (req, res) => {
   
   const downvoteAnswer = async (req, res) => {
     const { answerId } = req.body; 
-    const userId = req._id;
+    const userId = req.userId;
     try {
       const danswer = await Answer.findById(answerId);
   
