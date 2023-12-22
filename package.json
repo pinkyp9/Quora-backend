@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
       
-  "test": "jest",
+  "test": "jest --coverage",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },

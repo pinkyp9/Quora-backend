@@ -1,5 +1,5 @@
 import express from "express";
-import {followUser,getmyProfile,changeRole,uploadProfilePicture,unfollowUser,getFollowers,getFollowing,register,login,getProfile,updateUserProfile,deleteUser,sendOTP}  from "../controllers/userControllers.js";
+import {followUser,getmyProfile,changeRole,uploadProfilePicture,unfollowUser,getFollowers,getFollowing,register,login,getProfile,updateUserProfile,deleteUser}  from "../controllers/userControllers.js";
 import authenticateUser from "../middleware/authMiddleware.js";
 import authorizePremium from "../middleware/premiumUsers.js";
 import {upload} from "../middleware/valid.js";
@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.put("/changerole",authenticateUser,changeRole);
 
-router.post("/sendotp", sendOTP); 
+//router.post("/sendotp", sendOTP); 
 
 router.post("/register", register);
 

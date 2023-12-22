@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import validator from "email-validator";
 
-const tempSchema = new mongoose.Schema({
+/*const tempSchema = new mongoose.Schema({
 email: {
   type: String,
   required: true,
@@ -18,7 +18,7 @@ otp :{
   timestamps:true
 });
 
-
+*/
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -63,5 +63,5 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model("user", userSchema);
-const UserT = mongoose.model("usertemporary",tempSchema);
-export {User,UserT};
+//const UserT = mongoose.model("usertemporary",tempSchema);
+export {User};

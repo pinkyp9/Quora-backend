@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+/**import nodemailer from "nodemailer";
 const mailing = async(sender,receiver,subject,text)=>{
         
         const testAccount = await nodemailer.createTestAccount();
@@ -31,4 +31,36 @@ const mailing = async(sender,receiver,subject,text)=>{
   });
     }
 
-    export {mailing};
+    export {mailing};*/
+    import nodemailer from "nodemailer";
+
+const mailing = async (sender, receiver, subject, text) => {
+  try {
+    const testAccount = await nodemailer.createTestAccount();
+    const transporter = nodemailer.createTransport({
+      host: testAccount.smtp.host,
+      port: testAccount.smtp.port,
+      secure: testAccount.smtp.secure,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
+
+    const mailOption = {
+      from: sender,
+      to: receiver,
+      subject: subject,
+      text: text,
+    };
+
+    const info = await transporter.sendMail(mailOption);
+
+    //console.log("Email sent:", info.response);
+    //res.send("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  } catch (error) {
+    //console.error("Email sending failed:", error);
+  }
+};
+
+export { mailing };

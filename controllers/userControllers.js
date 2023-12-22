@@ -1,4 +1,4 @@
-import {User,UserT} from "../model/userModel.js";
+import {User} from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -7,7 +7,7 @@ import { mailing } from "../utilities/mail.js";
 dotenv.config();
 
 const mail = process.env.email;
-
+/*
 const generateOTP = () => {
     return Math.floor(1000 + Math.random() * 9000); // Generates a 4-digit OTP
   };
@@ -79,6 +79,33 @@ const sendOTP =  async (req, res)=>{
     res.status(500).json({ error: "registratoion failed" });
   }
 };
+*/
+const register = async (req, res) => {
+  try {
+    const { username,password,email } = req.body;
+
+    const registrationData = await User.findOne({email});
+    if (registrationData) {
+      return res.status(400).json({ error: "Registration already done" });
+    };
+    if(!username || !password || !email ){
+      return res.status(400).json({error : "fill all the feilds"});
+    }
+  
+    if (!registrationData) {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      
+      const newUser = new User({ username, email, password: hashedPassword, isVerified: true });
+      await newUser.save();
+      mailing(mail,email,"Registration Confirmation", "Thank you for registering with our platform!") 
+      res.status(200).json({ message: "Email verified, account activated" });
+    } 
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "registratoion failed" });
+  }
+};
 
 const login = async (req,res)=>{
     try {
@@ -99,7 +126,7 @@ const login = async (req,res)=>{
             expiresIn: '1h', 
         });
 
-        res.status(200).json({ message: 'Login successful.', token });
+        res.status(200).json({userId: user._id, message: 'Login successful.', token });
 
     } catch (error) {
         console.error(error);
@@ -109,7 +136,7 @@ const login = async (req,res)=>{
 
 const getmyProfile = async(req,res)=>{
     try{
-            console.log(req.userId);
+        
             const user = await User.findById(req.userId);
             res.status(200).json({message: 'Authenticated route', userId: req.userId, user});
 
@@ -303,4 +330,4 @@ const changeRole = async(req,res)=>{
     
   }
 }
-export {followUser, unfollowUser, getFollowers, getFollowing , register, login ,getProfile,getmyProfile,updateUserProfile,deleteUser,sendOTP,uploadProfilePicture,changeRole};
+export {followUser, unfollowUser, getFollowers, getFollowing , register, login ,getProfile,getmyProfile,updateUserProfile,deleteUser,uploadProfilePicture,changeRole};

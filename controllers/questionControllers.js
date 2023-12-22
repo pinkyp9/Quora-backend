@@ -38,7 +38,7 @@ const askQuestion = async (req, res) => {
       if(category)
       {uquestion.category = category;}
       await uquestion.save();
-      res.json(uquestion);
+      res.status(200).json(uquestion);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Failed to update the question' });
