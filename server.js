@@ -32,6 +32,7 @@ app.use((err,req,res,next) => {
 })
 
 app.get("/",(req,res)=>{
+    res.sendFile('C:\Users\Pinky Pamecha\OneDrive\Desktop\qoura unicode\Index.html');
     res.status(200).send("Welcome to your Q&A platform!");
 });
 
