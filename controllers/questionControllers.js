@@ -53,7 +53,7 @@ const askQuestion = async (req, res) => {
         return res.status(404).json({ error: 'Question not found' });
       }
       await Question.findByIdAndDelete(questionId);
-      res.status(200).json({ message: 'Question deleted' });
+      res.json({ message: 'Question deleted' });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Failed to delete the question' });

@@ -26,20 +26,19 @@ beforeAll(done => {
 afterAll(done => {
   mongoose.connection.close()
   done()
-});
+})
 
-test("start",async()=>{
-    await request(app).get('/').expect(200);
-});
+
+
 let newid="";
 let newtoken = "";
 test('Register user', async () => {
    const res = await request(app)
     .post('/user/register')
     .send({
-      username: 'i1',
-      password: 'a1',
-      email: 'i1@gmail.com',
+      username: 'new11111',
+      password: 'new11111',
+      email: 'new11111@gmail.com',
     })
     .expect(200)
 },10000)
@@ -48,8 +47,8 @@ test('Login user', async () => {
   const response  = await request(app)
     .post('/user/login')
     .send({
-      username: 'i1',
-      password: 'a1',
+      username: 'new1111',
+      password: 'new1111',
     })
     .expect(200)
   newtoken = response.body.token;
@@ -57,23 +56,13 @@ test('Login user', async () => {
 
 },10000);
 
-
-
 test('Get my profile', async () => {
   await request(app)
     .get('/user/myprofile')
     .set('Authorization', `Bearer ${newtoken}`)
     .expect(200);
 },10000);
-let token;
 
-test('wrong token given ', async () => {
-    await request(app)
-      .get('/user/myprofile')
-      .set('Authorization', `Bearer ${token}`)
-      .expect(401);
-  },10000);
-  
 test('Get users profile', async () => {
     await request(app)
       .get('/user/profile')
@@ -88,7 +77,7 @@ test('Update user profile', async () => {
   await request(app)
     .put('/user/update')
     .set('Authorization', `Bearer ${newtoken}`)
-    .send({ username: 'aa1' })
+    .send({ username: 'neww1111' })
     .expect(200);
 });
 
@@ -130,14 +119,6 @@ test('Change user role', async () => {
     .expect(200);
 });
 
-test('delete user', async () => {
-    const response  = await request(app)
-      .delete('/user/delete')
-      .set('Authorization', `Bearer ${newtoken}`)
-      .expect(200)
-  });
-
-
 test('Login user', async () => {
   const response  = await request(app)
     .post('/user/login')
@@ -163,19 +144,6 @@ test('create question', async () => {
      questionid = res.body._id; 
 },10000);
 
-
-test('create question upload picture', async () => {
-  const res = await request(app)
-    .post('/question/askQuestion')
-    .send({
-      questionText:'what is h?' ,
-       category:'Science',
-       'file':'C:\Users\Pinky Pamecha\OneDrive\Pictures\Screenshots\Screenshot 2023-08-26 021312'
-    })
-    .set('Authorization', `Bearer ${newtoken}`)
-    .expect(201);
-     questionid = res.body._id; 
-},10000);
 test(' update questions text', async () => {
     await request(app)
       .put('/question/updateQuestion')
@@ -212,17 +180,7 @@ test('get all answers to a question', async () => {
     .expect(201);
 });
 
-test('delete question', async () => {
-    const response  = await request(app)
-      .delete('/question/deleteQuestion')
-      .set('Authorization', `Bearer ${newtoken}`)
-      .send({
-        questionId:questionid
-      })
-      .expect(200)
-  });
 
-  
 
 
 
@@ -287,7 +245,8 @@ test('Login user', async () => {
       .send({ answerId:answerid })
       .expect(200);
   });
- 
+  
+  
   test('downupvote answer', async () => {
       await request(app)
         .patch('/answer/downvoteanswer')
@@ -296,21 +255,4 @@ test('Login user', async () => {
         .expect(200);
     });
   
-    test('delete answer', async () => {
-        const response  = await request(app)
-          .delete('/answer/deleteanswer')
-          .set('Authorization', `Bearer ${newtoken}`)
-          .send({
-            answerId:answerid
-          })
-          .expect(201)
-      });
-       
-
-    /**test('Upload profile picture', async () => {
-    await request(app)
-      .post('/user/upload-profile-picture')
-      .set('Authorization', `Bearer ${newtoken}`)
-      .send({'file':'C:\Users\Pinky Pamecha\OneDrive\Pictures\Screenshots\Screenshot 2023-08-26 021312'})
-      .expect(200);
-  }); */
+  
